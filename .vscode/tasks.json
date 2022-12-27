@@ -1,0 +1,19 @@
+{
+    "tasks": [
+        // uploads the avr part of rcboy to the rpi, builds and flashes the avr
+        {
+            "label": "avr-upload",
+            "command": "bash",
+            "args": [
+                "bin/upload.sh",
+            ],
+            "options": {
+                "cwd": "",
+            },
+            "problemMatcher": [
+                "$platformio"
+            ]
+        },
+    ],
+    "version": "2.0.0"
+}
