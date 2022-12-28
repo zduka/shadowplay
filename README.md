@@ -10,6 +10,6 @@ A simple light to be used for the shadowplay as well as a simple little flashlig
 
 ## TODO
 
-- rainbow speed is not nice
-- the HSV conversion seems a bit off?
-- candle & strobe effects
+- check voltage 
+- check charging
+- update readme

@@ -71,8 +71,7 @@ Button buttons[6];
 NeopixelStrip<1> currentRgb(RGB_CONTROL_PIN);
 ColorStrip<1> rgb;
 uint8_t hue = 0;
-// rainbow hue
-bool rainbow = false;
+bool rainbow;
 
 
 /** Enters sleep mode */
@@ -114,15 +113,21 @@ void tick() {
             analogWrite(WHITE_PWM_PIN, currentBrightness);
             break;
         case Mode::Candle:
+            analogWrite(WHITE_PWM_PIN, currentBrightness);
+            currentBrightness = random(0, brightness);
             break;
         case Mode::Strobe:
+            if (++hue == 32)
+                mode = Mode::White;
+            else
+                analogWrite(WHITE_PWM_PIN, (hue >> 2) & 1 ? currentBrightness : 0);
             break;
         case Mode::RGB:
             rgb.fill(Color::HSV(hue, 255, brightness));
             if (currentRgb.moveTowards(rgb)) {
                 currentRgb.update();
                 if (rainbow)
-                    hue += 8;
+                    hue += 1;
             }
             break;
         default:
@@ -183,8 +188,8 @@ void checkButtons() {
             if (hue == 0) {
                 rainbow = true;
             } else {
-                if (hue >= 8)
-                    hue -= 8;
+                if (hue >= 16)
+                    hue -= 16;
                 else
                     hue = 0;
             }
@@ -194,13 +199,17 @@ void checkButtons() {
     }
     if (checkButton(3, BTN_EFFECT_R_PIN)) {
         if (mode == Mode::RGB) {
-            if (hue <= 240)
-                hue += 8;
-            else 
+            if (rainbow) {
+                rainbow = false;
+                hue = 0;
+            } else if (hue <= 232) {
+                hue += 16;
+            } else {
                 hue = 248;
-            rainbow = false;
+            }
         } else {
             mode = Mode::Strobe;
+            hue = 0;
         }
     }
     if (checkButton(4, BTN_BRIGHTNESS_DOWN_PIN)) {
