@@ -2,6 +2,8 @@
 
 A simple light to be used for the shadowplay as well as a simple little flashlight for kids. Powered by a protected LiPo battery, comes with a USB-C charger too.  
 
+The shadows have a width of 1.6mm and the figures are generally around 9cm tall. 
+
 ## Controls
 
 Has a powerful white LED and a Neopixel RGB. Two recessed buttons (bottom row) enter either the white, or the RGB mode. The top buttons control brightness. 
