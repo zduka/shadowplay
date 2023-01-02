@@ -37,7 +37,12 @@ BTN_BRIGHTNESS_DOWN_PIN (3) PA7    UPDI (11)
 // 10 minutes for countdown
 #define POWER_OFF_COUNTDOWN 10 * 60 * 100
 
-#define DEFAULT_BRIGHTNESS 8
+#define DEFAULT_BRIGHTNESS_WHITE 32
+#define DEFAULT_BRIGHTNESS_RGB 64
+
+#define CANDLE_STEP 4
+
+#define BRIGHTNESS_STEP 16
 
 // 50 ms debounce time
 #define DEBOUNCE_TICKS 5
@@ -112,10 +117,16 @@ void tick() {
         case Mode::White:
             analogWrite(WHITE_PWM_PIN, currentBrightness);
             break;
-        case Mode::Candle:
+        case Mode::Candle: {
             analogWrite(WHITE_PWM_PIN, currentBrightness);
-            currentBrightness = random(0, brightness);
+            uint8_t dir = random(0, brightness);
+            if (dir < currentBrightness)
+                currentBrightness = currentBrightness < CANDLE_STEP ? 0 : (currentBrightness - CANDLE_STEP);
+            else
+                currentBrightness = currentBrightness > (255 - CANDLE_STEP) ? 255 : (currentBrightness + CANDLE_STEP);
+            //currentBrightness = random(0, brightness);
             break;
+        }
         case Mode::Strobe:
             if (++hue == 32)
                 mode = Mode::White;
@@ -160,6 +171,7 @@ void enterRGBMode() {
     mode = Mode::RGB;
     hue = 0;
     rainbow = true;
+    brightness = DEFAULT_BRIGHTNESS_RGB;
     rgb.fill(Color::HSV(hue * 255, 255, brightness));
 }
 
@@ -170,7 +182,7 @@ void checkButtons() {
         if (mode == Mode::Off || mode == Mode::RGB) {
             mode = Mode::White;
             currentBrightness = 0;
-            brightness = DEFAULT_BRIGHTNESS;
+            brightness = DEFAULT_BRIGHTNESS_WHITE;
             digitalWrite(RGB_PWR_PIN, HIGH);
         } else {
             powerOff(); 
@@ -194,7 +206,10 @@ void checkButtons() {
                     hue = 0;
             }
         } else {
-            mode = Mode::Candle;
+            if (mode != Mode::Candle)
+                mode = Mode::Candle;
+            else 
+                mode = Mode::White;
         }
     }
     if (checkButton(3, BTN_EFFECT_R_PIN)) {
@@ -213,17 +228,23 @@ void checkButtons() {
         }
     }
     if (checkButton(4, BTN_BRIGHTNESS_DOWN_PIN)) {
-        if (brightness >= 16)
+        brightness = brightness > BRIGHTNESS_STEP ? brightness - BRIGHTNESS_STEP : 8;
+        /*
+        if (brightness >= 1)
             brightness -= 8;
         else
             brightness = 8; 
+        */
     }
 
     if (checkButton(5, BTN_BRIGHTNESS_UP_PIN)) {
+        brightness = brightness < (255 - BRIGHTNESS_STEP) ? brightness + BRIGHTNESS_STEP : 255;
+        /*
         if (brightness <= 240)
             brightness += 8;
         else 
             brightness = 248;
+        */
     }
 }
 
